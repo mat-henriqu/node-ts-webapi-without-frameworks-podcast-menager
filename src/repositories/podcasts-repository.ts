@@ -1,23 +1,36 @@
-import fs from "fs";
+import { readFile } from "fs/promises";
 import path from "path";
 
 import { PodcastModel } from "../models/podcast-model";
 
+export interface RepositoryPodcastFilter {
+  podcastName?: string;
+  category?: string;
+}
+
 const pathData = path.join(__dirname, "../repositories/podcasts.json");
 
 export const repositoryPodcast = async (
-  podcastName?: string
+  filter?: RepositoryPodcastFilter,
 ): Promise<PodcastModel[]> => {
   const language = "utf-8";
 
-  const rawData = fs.readFileSync(pathData, language);
-  let jsonFile = JSON.parse(rawData);
+  const rawData = await readFile(pathData, language);
+  const data: PodcastModel[] = JSON.parse(rawData);
+  const normalizedPodcastName = filter?.podcastName?.toLowerCase();
+  const normalizedCategory = filter?.category?.toLowerCase();
 
-  if (podcastName) {
-    jsonFile = jsonFile.filter(
-      (podcast: PodcastModel) => podcast.podcastName === podcastName
-    );
-  }
+  return data.filter((podcast) => {
+    const podcastNameMatches = normalizedPodcastName
+      ? podcast.podcastName.toLowerCase() === normalizedPodcastName
+      : true;
 
-  return jsonFile;
+    const categoryMatches = normalizedCategory
+      ? podcast.categories.some(
+          (category) => category.toLowerCase() === normalizedCategory,
+        )
+      : true;
+
+    return podcastNameMatches && categoryMatches;
+  });
 };

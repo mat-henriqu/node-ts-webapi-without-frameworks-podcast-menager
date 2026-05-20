@@ -1,23 +1,21 @@
-import { PodcastTransferModel } from "../models/Podcast-Transfer-Model";
+import { PodcastTransferModel } from "../models/podcast-transfer-model";
+import { FilterEpisodesQueryModel } from "../models/podcast-query-model";
 import { repositoryPodcast } from "../repositories/podcasts-repository";
 import { StatusCode } from "../utils/status-code";
+import { paginate } from "../utils/pagination";
 
 export const serviceFilterEpisodes = async (
-  podcastName: string | undefined
+  query: FilterEpisodesQueryModel,
 ): Promise<PodcastTransferModel> => {
-  //define a interface de retorno
-  let responseFormat: PodcastTransferModel = {
-    statusCode: 0,
-    body: [],
-  };
+  const data = await repositoryPodcast({
+    podcastName: query.podcastName,
+    category: query.category,
+  });
+  const paginated = paginate(data, query.page, query.limit);
 
-  //buscando os dados
-  const queryString = podcastName?.split("?p=")[1] || "";
-  const data = await repositoryPodcast(queryString);
-
-  responseFormat = {
-    statusCode: data.length !== 0 ? StatusCode.OK : StatusCode.NoContent,
-    body: data,
+  const responseFormat: PodcastTransferModel = {
+    statusCode: StatusCode.OK,
+    body: paginated,
   };
 
   return responseFormat;

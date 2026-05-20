@@ -1,21 +1,18 @@
-import { PodcastTransferModel } from "../models/Podcast-Transfer-Model";
+import { PodcastTransferModel } from "../models/podcast-transfer-model";
+import { ListEpisodesQueryModel } from "../models/podcast-query-model";
 import { repositoryPodcast } from "../repositories/podcasts-repository";
 import { StatusCode } from "../utils/status-code";
+import { paginate } from "../utils/pagination";
 
-export const serviceListEpisodes = async (): Promise<PodcastTransferModel> => {
-  //define contrato
-  let responseFormat: PodcastTransferModel = {
-    statusCode: 0,
-    body: [],
-  };
-
-  //busco os dados
+export const serviceListEpisodes = async (
+  query: ListEpisodesQueryModel,
+): Promise<PodcastTransferModel> => {
   const data = await repositoryPodcast();
+  const paginated = paginate(data, query.page, query.limit);
 
-  //verifico o tipo de resposta
-  responseFormat = {
-    statusCode: data.length !== 0 ? StatusCode.OK : StatusCode.NoContent,
-    body: data,
+  const responseFormat: PodcastTransferModel = {
+    statusCode: StatusCode.OK,
+    body: paginated,
   };
 
   return responseFormat;

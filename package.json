@@ -2,7 +2,7 @@
   "name": "projeto-app-flow",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "directories": {
     "doc": "docs"
   },
@@ -10,13 +10,20 @@
     "start:dev": "tsx --env-file=.env src/server.ts",
     "start:watch": "tsx watch --env-file=.env src/server.ts",
     "dist": "tsup src",
-    "start:dist": "npm run dist && --env-file=.env node/server.js"
+    "start:dist": "npm run dist && node --env-file=.env dist/server.js",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/**/*.test.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
     "@types/node": "^20.11.28",
+    "eslint": "^8.57.0",
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "typescript": "^5.4.2"

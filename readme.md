@@ -8,41 +8,45 @@ O Podcast Manager é uma aplicação inspirada no estilo da Netflix, que permite
 
 - **Listar os episódios de podcasts em sessões de categorias:** Os episódios são organizados em categorias como saúde, bodybuilder, mentalidade e humor, permitindo aos usuários explorar facilmente os conteúdos disponíveis.
 - **Filtrar episódios por nome de podcast:** Os usuários podem realizar buscas específicas por nome de podcast, facilitando o acesso aos episódios desejados.
+- **Paginação e filtros:** Suporte a `page`, `limit`, `podcastName` e `category` com validação de parâmetros.
 
 ## Implementação
 
 ### Listar os episódios de podcasts em sessões de categorias
 
-- **Endpoint:** `GET /list`
+- **Endpoint:** `GET /api/list`
 - **Descrição:** Retorna uma lista de episódios de podcasts organizados por categorias.
+- **Query params opcionais:** `page` (inteiro positivo), `limit` (inteiro positivo até 50)
 - **Exemplo de resposta:**
 
 ```json
-[
-  {
-    "podcastName": "flow",
-    "episode": "CBUM - Flow #319",
-    "videoId": "pQSuQmUfS30",
-    "cover": "https://i.ytimg.com/vi/pQSuQmUfS30/maxresdefault.jpg",
-    "link": "https://www.youtube.com/watch?v=pQSuQmUfS30",
-    "categories": ["saúde", "esporte", "bodybuilder"]
-  },
-  {
-    "podcastName": "flow",
-    "episode": "RUBENS BARRICHELLO - Flow #339",
-    "videoId": "4KDGTdiOV4I",
-    "cover": "https://i.ytimg.com/vi/4KDGTdiOV4I/maxresdefault.jpg",
-    "link": "https://www.youtube.com/watch?v=4KDGTdiOV4I",
-    "categories": ["esporte", "corrida"]
+{
+  "items": [
+    {
+      "podcastName": "flow",
+      "episode": "CBUM - Flow #319",
+      "videoId": "pQSuQmUfS30",
+      "categories": ["saúde", "esporte", "bodybuilder"]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 4,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrevious": false
   }
-]
+}
 ```
 
 ### Filtrar episódios por nome de podcast
 
-- **Endpoint:** `GET /episode?podcastName={nome}`
-- **Descrição:** Retorna uma lista de episódios de podcast com base no nome do podcast fornecido.
-- **Exemplo de requisição:** `GET /episode?podcastName=flow`
+- **Endpoint:** `GET /api/podcasts?podcastName={nome}`
+- **Descrição:** Retorna episódios filtrados por nome do podcast e/ou categoria com paginação.
+- **Query params opcionais:** `podcastName`, `category`, `page`, `limit`
+- **Exemplo de requisição:** `GET /api/podcasts?podcastName=flow`
+- **Exemplo de requisição com categoria:** `GET /api/podcasts?category=humor&page=1&limit=5`
 
 ## Tecnologias Utilizadas
 
@@ -56,8 +60,41 @@ O Podcast Manager é uma aplicação inspirada no estilo da Netflix, que permite
 
 1. Clone este repositório.
 2. Instale as dependências usando `npm install`.
-3. Inicie o servidor executando `start:dev`.
+3. Inicie o servidor executando `npm run start:dev`.
 4. Acesse os endpoints fornecidos para listar os episódios de podcasts ou filtrá-los por nome de podcast.
+
+## Testes
+
+- Execute os testes de integração com: `npm run test`
+- Valide tipagem com: `npm run typecheck`
+- Execute lint com: `npm run lint`
+
+## Observabilidade
+
+- Logs estruturados em JSON com `requestId`, `method`, `path`, `statusCode` e `durationMs`.
+- Ajuste o nível de logs com `LOG_LEVEL` (`debug`, `info`, `warn`, `error`).
+
+## CI
+
+- Workflow GitHub Actions em `.github/workflows/ci.yml` executa `lint`, `typecheck` e `test` em push/PR.
+
+## Contrato de Erro
+
+Em erros HTTP, a API retorna payload JSON padronizado e o header `X-Request-Id`.
+
+Exemplo:
+
+```json
+{
+  "error": {
+    "code": "ROUTE_NOT_FOUND",
+    "message": "Rota nao encontrada",
+    "requestId": "9f6fa6c6-13f3-4479-9393-49fbbf88c3d6",
+    "method": "GET",
+    "path": "/api/invalida"
+  }
+}
+```
 
 ## Contribuição
 
